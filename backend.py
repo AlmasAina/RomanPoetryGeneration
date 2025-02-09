@@ -81,7 +81,9 @@ def train_model(embedding_dim, lstm_units, batch_size, epochs, learning_rate, se
 
     # Define the model
     model = Sequential([
-        Embedding(input_dim=np.max(X_train)+1, output_dim=embedding_dim, input_length=sequence_length),
+        # Embedding(input_dim=np.max(X_train)+1, output_dim=embedding_dim, input_length=sequence_length),
+        Embedding(input_dim=np.max(X_train)+1, output_dim=embedding_dim),
+
         LSTM(lstm_units, return_sequences=True),
         LSTM(lstm_units),
         Dense(lstm_units, activation="relu"),
@@ -98,11 +100,13 @@ def train_model(embedding_dim, lstm_units, batch_size, epochs, learning_rate, se
     return "Model Trained & Saved!"
 
 # ✅ Generate Poetry
-def generate_poetry(seed_text, next_words, sequence_length, tokenizer):
+# ✅ Generate Poetry with Line Breaks
+def generate_poetry(seed_text, next_words, sequence_length, tokenizer, words_per_line=7):
     model = tf.keras.models.load_model("lstm_poetry_model.h5")
+    generated_text = seed_text
 
-    for _ in range(next_words):
-        token_list = tokenizer.texts_to_sequences([seed_text])[0]
+    for i in range(next_words):
+        token_list = tokenizer.texts_to_sequences([generated_text])[0]
         token_list = pad_sequences([token_list], maxlen=sequence_length, padding='pre')
 
         predicted = model.predict(token_list, verbose=0)
@@ -110,7 +114,12 @@ def generate_poetry(seed_text, next_words, sequence_length, tokenizer):
 
         for word, index in tokenizer.word_index.items():
             if index == predicted_word_index:
-                seed_text += " " + word
+                generated_text += " " + word
                 break
 
-    return seed_text
+        # Add a new line after every `words_per_line` words
+        if (i + 1) % words_per_line == 0:
+            generated_text += "\n"
+
+    return generated_text
+
