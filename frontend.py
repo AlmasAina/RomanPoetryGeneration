@@ -2,65 +2,141 @@ import streamlit as st
 import os
 import backend
 
-st.set_page_config(page_title="VerseCraft: Poetry Generator", layout="wide")
+st.set_page_config(page_title="VerseCraft: Poetry Generator", layout="centered")
 
-# 🎨 **Custom Styling**
+# 🎨 **Custom Styling (Gorgeous, Elegant, and Interactive Design)**
 st.markdown("""
     <style>
+    /* Animated Background Gradient with glowing effect */
     body {
-        background-color: #87CEEB; /* Sky Blue Background */
-        font-family: 'Arial', sans-serif;
-        color: #333333; /* Dark Grey Text for readability */
-    }
-    .title {
+        background: linear-gradient(45deg, #ff9a8b, #ff6a88, #d17c85, #6a3dff); /* Vibrant Gradient */
+        background-size: 400% 400%;
+        animation: gradientAnimation 20s ease infinite;
+        font-family: 'Poppins', sans-serif;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
         text-align: center;
-        font-size: 48px;
-        color: #4169E1; /* Royal Blue for Title */
+        background-attachment: fixed;
+    }
+
+    /* Keyframe animation for the gradient background */
+    @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Title Styling (Gorgeous and elegant font) */
+    .title {
+        font-size: 70px;
+        color: #ffffff;
+        font-weight: bold;
         margin-bottom: 40px;
+        text-shadow: 6px 6px 15px rgba(0, 0, 0, 0.6);
+        font-family: 'Playfair Display', serif;
     }
+
+    /* Content Box Styling (Smooth, elegant card) */
+    .content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.8); /* Soft transparent white background */
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s ease;
+        width: 85%;
+        max-width: 600px;
+    }
+
+    .content:hover {
+        box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.5); /* Hover effect to enhance the feel */
+        transform: scale(1.02);
+    }
+
+    /* Styling for input fields, sliders, and buttons */
     .stTextInput, .stSlider, .stSelectbox, .stButton > button, .stTextArea textarea {
-        background-color: transparent;
-        border: none;
-        font-size: 16px;
-        margin-bottom: 20px;
-        padding: 10px;
-        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-    }
-    .stTextInput input, .stTextArea textarea {
-        font-family: 'Arial', sans-serif;
-        background-color: #FFFFFF; /* White background for input */
-    }
-    .stButton > button {
-        background-color: #4169E1; /* Royal Blue */
-        color: white;
+        background-color: #ffffff;
+        border: 2px solid #ff6a88; /* Soft Pink Border */
         font-size: 18px;
-        padding: 10px 20px;
-        border-radius: 8px;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        width: 80%;
+        max-width: 500px;
+    }
+
+    /* Focus effect for inputs */
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: #6a3dff; /* Elegant Purple */
+        box-shadow: 0px 0px 15px rgba(106, 61, 255, 0.5);
+    }
+
+    /* Hover effect for buttons */
+    .stButton > button {
+        background-color: #ff6a88; /* Soft Pink */
+        color: white;
+        font-size: 22px;
+        padding: 18px 24px;
+        border-radius: 12px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: transform 0.3s ease, background-color 0.3s ease;
         border: none;
     }
+
     .stButton > button:hover {
-        background-color: #3b5b9d; /* Darker shade of blue on hover */
+        background-color: #d17c85; /* Deep Peach Hover */
+        transform: scale(1.1); /* Subtle hover animation */
     }
+
+    /* Text area for generated poetry */
+    .stTextArea textarea {
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #333333;
+        background-color: #ffffff;
+        border: 2px solid #ff6a88;
+        border-radius: 10px;
+        padding: 15px;
+        transition: all 0.3s ease;
+    }
+
+    /* Alert, success, and warning messages */
     .stAlert {
-        background-color: #f0f8ff; /* Light Blue for alerts */
-        color: #4169E1; /* Royal Blue text */
-        border-left: 5px solid #4169E1; /* Royal Blue border */
+        background-color: #fdf1c7;
+        color: #333333;
+        border-left: 5px solid #ff9800;
+        padding: 15px;
     }
+
     .stSuccess {
-        background-color: #e9f5e9; /* Light Green Success */
-        color: #388E3C; /* Green text */
-        border-left: 5px solid #388E3C; /* Green border */
+        background-color: #66bb6a;
+        color: #ffffff;
+        border-left: 5px solid #388e3c;
+        padding: 15px;
     }
+
     .stWarning {
-        background-color: #fff3cd; /* Light Yellow for Warnings */
-        color: #8a6d3b; /* Dark Yellow text */
-        border-left: 5px solid #8a6d3b; /* Dark Yellow border */
+        background-color: #ffeb3b;
+        color: #000000;
+        border-left: 5px solid #f57c00;
+        padding: 15px;
     }
+
+    /* Slider with glowing effect */
     .stSlider .stSlider__range {
-        background-color: #4169E1; /* Royal Blue slider */
+        background-color: #ff6a88;
+        height: 12px;
+        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -68,73 +144,20 @@ st.markdown("""
 # ✅ **Title**
 st.markdown("<h1 class='title'>VerseCraft: Poetry Generator</h1>", unsafe_allow_html=True)
 
-# ✅ **File Upload**
-uploaded_file = st.file_uploader("Upload your poetry dataset (CSV)", type=["csv"])
+# ✅ **Centered Content Container**
+# st.markdown("<div class='content'>", unsafe_allow_html=True)
 
-# ✅ **File Upload Handling**
-if uploaded_file:
-    file_path = os.path.join("data", uploaded_file.name)
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+# ✅ **Load Tokenizer**
+if 'tokenizer' not in st.session_state:
+    st.session_state.tokenizer = backend.load_tokenizer()
 
-    st.success(f"✅ File '{uploaded_file.name}' uploaded successfully!")
+# ✅ **Poetry Generation (Using Pre-trained Model)**
+st.subheader("📝 Enter a Seed Text and Generate Your Poetry")
 
-    # ✅ **Data Preprocessing - Only happens once**
-    if 'preprocessed' not in st.session_state:
-        if st.button("Preprocess Text"):
-            vocab_size, tokenizer = backend.preprocess_text(file_path, sequence_length=10)
-            st.session_state.preprocessed = True
-            st.session_state.vocab_size = vocab_size
-            st.session_state.tokenizer = tokenizer
-            st.success("✅ Text Preprocessed!")
+seed_text = st.text_input("Seed Text:", "mujh se pehli si mohabbat", key="seed_text", placeholder="Start your poetic journey here...")
+if st.button("Generate Poetry", key="generate_poetry"):
+    generated_poetry = backend.generate_poetry(seed_text, sequence_length=10, tokenizer=st.session_state.tokenizer)
+    st.text_area("Generated Poetry:", generated_poetry, height=300, max_chars=1000)
 
-# # ✅ **Model Hyperparameters**
-# st.sidebar.header("📌 Model Hyperparameters")
-# embedding_dim = st.sidebar.slider("Embedding Dimension", 50, 300, 100)
-# lstm_units = st.sidebar.slider("LSTM Units", 50, 300, 150)
-# batch_size = st.sidebar.selectbox("Batch Size", [32, 64, 128, 256], index=2)
-# epochs = st.sidebar.slider("Epochs", 10, 100, 50)
-# learning_rate = st.sidebar.slider("Learning Rate", 0.0001, 0.01, 0.001, format="%.4f")
-
-# ✅ **Model Hyperparameters**
-st.sidebar.header("📌 Model Hyperparameters")
-embedding_dim = st.sidebar.slider("Embedding Dimension", 50, 300, 100)
-lstm_units = st.sidebar.slider("LSTM Units", 50, 300, 150)
-batch_size = st.sidebar.selectbox("Batch Size", [32, 64, 128, 256], index=2)
-epochs = st.sidebar.slider("Epochs", 10, 100, 50)
-learning_rate = st.sidebar.slider("Learning Rate", 0.0001, 0.01, 0.001, format="%.4f")
-temperature = st.sidebar.slider("Temperature", 0.1, 2.0, 1.0, format="%.1f")  # New temperature slider
-
-# ✅ **Train Model (Persistent training check)**
-if 'preprocessed' in st.session_state:
-    if 'trained' not in st.session_state:
-        if st.button("Train Model"):
-            with st.spinner("Training in Progress..."):
-                backend.train_model(embedding_dim, lstm_units, batch_size, epochs, learning_rate, sequence_length=10)
-            st.session_state.trained = True
-            st.success("✅ Model Training Complete!")
-    else:
-        st.success("Model already trained!")
-else:
-    st.warning("Please preprocess the text first!")
-
-
-# ✅ **Poetry Generation (Only shown after model is trained)**
-if 'trained' in st.session_state:
-    # Generate Poetry Section
-    st.subheader("📝 Generate Poetry")
-    seed_text = st.text_input("Enter Seed Text:", "mujh se pehli si mohabbat")
-    next_words = st.slider("Number of Words to Generate:", 10, 100, 50)
-    if st.button("Generate Poetry"):
-        generated_poetry = backend.generate_poetry(seed_text, next_words, sequence_length=10, tokenizer=st.session_state.tokenizer, temperature=temperature)
-        st.text_area("Generated Poetry:", generated_poetry, height=200)
-
-    # Generate Poetry from Saved Model Section
-    st.subheader("📝 Generate Poetry from Saved Model")
-    seed_text_saved = st.text_input("Enter Seed Text (for saved model):", "hasina daniya ky laab")
-    next_words_saved = st.slider("Number of Words to Generate (Saved Model):", 10, 100, 50)
-    if st.button("Generate Poetry from Saved Model"):
-        generated_poetry_saved = backend.generate_poetry(seed_text_saved, next_words_saved, sequence_length=10, tokenizer=st.session_state.tokenizer)
-        st.text_area("Generated Poetry (Saved Model):", generated_poetry_saved, height=200)
-else:
-    st.warning("Please train the model first!")
+# ✅ **End of content container**
+st.markdown("</div>", unsafe_allow_html=True)
