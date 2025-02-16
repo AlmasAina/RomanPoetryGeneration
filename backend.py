@@ -101,7 +101,8 @@ def train_model(embedding_dim, lstm_units, batch_size, epochs, learning_rate, se
 
 # ✅ Generate Poetry
 # ✅ Generate Poetry with Line Breaks
-def generate_poetry(seed_text, next_words, sequence_length, tokenizer, words_per_line=7):
+# ✅ Generate Poetry with Temperature Control
+def generate_poetry(seed_text, next_words, sequence_length, tokenizer, temperature=1.0, words_per_line=5):
     model = tf.keras.models.load_model("lstm_poetry_model.h5")
     generated_text = seed_text
 
@@ -109,8 +110,14 @@ def generate_poetry(seed_text, next_words, sequence_length, tokenizer, words_per
         token_list = tokenizer.texts_to_sequences([generated_text])[0]
         token_list = pad_sequences([token_list], maxlen=sequence_length, padding='pre')
 
-        predicted = model.predict(token_list, verbose=0)
-        predicted_word_index = np.argmax(predicted)
+        predicted = model.predict(token_list, verbose=0)[0]
+
+        # Apply temperature
+        predicted = np.asarray(predicted).astype('float64')
+        predicted = np.log(predicted + 1e-7) / temperature
+        predicted = np.exp(predicted) / np.sum(np.exp(predicted))  # Normalize
+
+        predicted_word_index = np.random.choice(len(predicted), p=predicted)  # Select word based on temperature distribution
 
         for word, index in tokenizer.word_index.items():
             if index == predicted_word_index:

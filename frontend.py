@@ -88,6 +88,14 @@ if uploaded_file:
             st.session_state.tokenizer = tokenizer
             st.success("✅ Text Preprocessed!")
 
+# # ✅ **Model Hyperparameters**
+# st.sidebar.header("📌 Model Hyperparameters")
+# embedding_dim = st.sidebar.slider("Embedding Dimension", 50, 300, 100)
+# lstm_units = st.sidebar.slider("LSTM Units", 50, 300, 150)
+# batch_size = st.sidebar.selectbox("Batch Size", [32, 64, 128, 256], index=2)
+# epochs = st.sidebar.slider("Epochs", 10, 100, 50)
+# learning_rate = st.sidebar.slider("Learning Rate", 0.0001, 0.01, 0.001, format="%.4f")
+
 # ✅ **Model Hyperparameters**
 st.sidebar.header("📌 Model Hyperparameters")
 embedding_dim = st.sidebar.slider("Embedding Dimension", 50, 300, 100)
@@ -95,6 +103,7 @@ lstm_units = st.sidebar.slider("LSTM Units", 50, 300, 150)
 batch_size = st.sidebar.selectbox("Batch Size", [32, 64, 128, 256], index=2)
 epochs = st.sidebar.slider("Epochs", 10, 100, 50)
 learning_rate = st.sidebar.slider("Learning Rate", 0.0001, 0.01, 0.001, format="%.4f")
+temperature = st.sidebar.slider("Temperature", 0.1, 2.0, 1.0, format="%.1f")  # New temperature slider
 
 # ✅ **Train Model (Persistent training check)**
 if 'preprocessed' in st.session_state:
@@ -109,6 +118,7 @@ if 'preprocessed' in st.session_state:
 else:
     st.warning("Please preprocess the text first!")
 
+
 # ✅ **Poetry Generation (Only shown after model is trained)**
 if 'trained' in st.session_state:
     # Generate Poetry Section
@@ -116,7 +126,7 @@ if 'trained' in st.session_state:
     seed_text = st.text_input("Enter Seed Text:", "mujh se pehli si mohabbat")
     next_words = st.slider("Number of Words to Generate:", 10, 100, 50)
     if st.button("Generate Poetry"):
-        generated_poetry = backend.generate_poetry(seed_text, next_words, sequence_length=10, tokenizer=st.session_state.tokenizer)
+        generated_poetry = backend.generate_poetry(seed_text, next_words, sequence_length=10, tokenizer=st.session_state.tokenizer, temperature=temperature)
         st.text_area("Generated Poetry:", generated_poetry, height=200)
 
     # Generate Poetry from Saved Model Section
